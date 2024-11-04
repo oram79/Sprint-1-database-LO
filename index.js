@@ -16,7 +16,36 @@ const pool = new Pool({
  * Creates the database tables, if they do not already exist.
  */
 async function createTable() {
-  // TODO: Add code to create Movies, Customers, and Rentals tables
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS Movies (
+        movie_id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        release_year INTEGER NOT NULL,
+        genre TEXT NOT NULL,
+        director TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS Customers (
+        customer_id SERIAL PRIMARY KEY,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        phone TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS Rentals (
+        rental_id SERIAL PRIMARY KEY,
+        customer_id INTEGER NOT NULL REFERENCES Customers(customer_id) ON DELETE CASCADE,
+        movie_id INTEGER NOT NULL REFERENCES Movies(movie_id) ON DELETE CASCADE,
+        rental_date DATE NOT NULL,
+        return_date DATE
+      );
+    `);
+    console.log('The Tables Were Created With No Issues!');
+  } catch (error) {
+    console.error('Error creating the tables: ', error);
+  }
 };
 
 /**
@@ -28,15 +57,30 @@ async function createTable() {
  * @param {string} director Director of the movie
  */
 async function insertMovie(title, year, genre, director) {
-  // TODO: Add code to insert a new movie into the Movies table
-};
+  try {
+    await pool.query(`
+      INSERT INTO Movies (title, release_year, genre, director)
+      VALUES ($1, $2, $3, $4)
+    `, [title, year, genre, director]);
+    console.log('Movie Added Successfully!');
+  } catch (error) {
+    console.error('Error Adding Movie:', error);
+  }
+}
+
 
 /**
  * Prints all movies in the database to the console
  */
 async function displayMovies() {
-  // TODO: Add code to retrieve and print all movies from the Movies table
-};
+  try {
+    const res = await pool.query('SELECT * FROM Movies');
+    console.log('Movies:', res.rows);
+  } catch (error) {
+    console.error('Error Displaying Movies:', error);
+  }
+}
+
 
 /**
  * Updates a customer's email address.
@@ -45,27 +89,43 @@ async function displayMovies() {
  * @param {string} newEmail New email address of the customer
  */
 async function updateCustomerEmail(customerId, newEmail) {
-  // TODO: Add code to update a customer's email address
-};
+  try {
+    await pool.query(`
+      UPDATE Customers SET email = $1 WHERE customer_id = $2
+    `, [newEmail, customerId]);
+    console.log('Customer Email Updated Successfully!');
+  } catch (error) {
+    console.error('Error Updating Customer Email:', error);
+  }
+}
+
 
 /**
  * Removes a customer from the database along with their rental history.
- * 
+ *x
  * @param {number} customerId ID of the customer to remove
  */
 async function removeCustomer(customerId) {
-  // TODO: Add code to remove a customer and their rental history
-};
+  try {
+    await pool.query(`
+      DELETE FROM Customers WHERE customer_id = $1
+    `, [customerId]);
+    console.log('Customer And Rental History Removed Successfully!');
+  } catch (error) {
+    console.error('Error Removing Customer:', error);
+  }
+}
+
 
 /**
  * Prints a help message to the console
  */
 function printHelp() {
   console.log('Usage:');
-  console.log('  insert <title> <year> <genre> <director> - Insert a movie');
-  console.log('  show - Show all movies');
-  console.log('  update <customer_id> <new_email> - Update a customer\'s email');
-  console.log('  remove <customer_id> - Remove a customer from the database');
+  console.log('  insert "title" year "genre" "director" --- Insert A Movie');
+  console.log('  show --- Show All Movies');
+  console.log('  update "customer_id" "new_email" --- Update A Customer\'s Email');
+  console.log('  remove "customer_id" --- Remove A Customer From The Database');
 }
 
 /**
