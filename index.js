@@ -1,13 +1,16 @@
 const { Pool } = require('pg');
+require('dotenv').config();
+
 
 // PostgreSQL connection
 const pool = new Pool({
-  user: 'postgres', //This _should_ be your username, as it's the default one Postgres uses
-  host: 'localhost',
-  database: 'your_database_name', //This should be changed to reflect your actual database
-  password: 'your_database_password', //This should be changed to reflect the password you used when setting up Postgres
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
+
 
 /**
  * Creates the database tables, if they do not already exist.
