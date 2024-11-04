@@ -1,0 +1,11 @@
+-- Explanation Of Table Normalization
+
+1NF - all 3 tables have a primary key and contains only atomic values with no
+    repeating groups
+
+2NF - all non-key attributes are fully dependent on the primary key. In the
+    rentals table, customer_id and movie_id are foreign keys and contribute
+    to the dependency without partial dependencies
+
+3NF - All tables have no transitive dependencies, every non-key column depends
+    only on the primary key of the table
